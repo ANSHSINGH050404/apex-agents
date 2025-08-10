@@ -3,7 +3,15 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent } from "@/components/ui/card";
-import { OctagonAlertIcon, Eye, EyeOff, Mail, Lock, Github, Chrome } from "lucide-react";
+import {
+  OctagonAlertIcon,
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  Github,
+  Chrome,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
@@ -13,7 +21,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -23,7 +31,7 @@ import { useRouter } from "next/navigation"; // Fixed: App Router import
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, { message: "Password is required" })
+  password: z.string().min(1, { message: "Password is required" }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -38,8 +46,8 @@ export const SignInView = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      password: ""
-    }
+      password: "",
+    },
   });
 
   const onSubmit = async (data: FormData) => {
@@ -59,7 +67,7 @@ export const SignInView = () => {
           onError: ({ error }) => {
             setError(error.message || "An error occurred during sign in");
             setIsLoading(false);
-          }
+          },
         }
       );
     } catch (err) {
@@ -68,20 +76,20 @@ export const SignInView = () => {
     }
   };
 
-  const handleSocialLogin = async (provider: 'google' | 'github') => {
+  const handleSocialLogin = async (provider: "google" | "github") => {
     setIsLoading(true);
     setError(null);
 
     try {
-      if (provider === 'google') {
+      if (provider === "google") {
         await authClient.signIn.social({
-          provider: 'google',
-          callbackURL: '/'
+          provider: "google",
+          callbackURL: "/",
         });
-      } else if (provider === 'github') {
+      } else if (provider === "github") {
         await authClient.signIn.social({
-          provider: 'github', 
-          callbackURL: '/'
+          provider: "github",
+          callbackURL: "/",
         });
       }
     } catch (err) {
@@ -107,7 +115,7 @@ export const SignInView = () => {
           const top = (i * 23 + 17) % 100;
           const delay = (i * 0.5) % 3;
           const duration = 2 + (i % 3);
-          
+
           return (
             <div
               key={i}
@@ -116,7 +124,7 @@ export const SignInView = () => {
                 left: `${left}%`,
                 top: `${top}%`,
                 animationDelay: `${delay}s`,
-                animationDuration: `${duration}s`
+                animationDuration: `${duration}s`,
               }}
             />
           );
@@ -129,7 +137,10 @@ export const SignInView = () => {
             {/* Left Side - Form */}
             <div className="p-8 lg:p-12">
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   {/* Header */}
                   <div className="text-center space-y-2">
                     <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -147,7 +158,9 @@ export const SignInView = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-white/90 font-medium">Email</FormLabel>
+                          <FormLabel className="text-white/90 font-medium">
+                            Email
+                          </FormLabel>
                           <FormControl>
                             <div className="relative group">
                               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
@@ -170,7 +183,9 @@ export const SignInView = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-white/90 font-medium">Password</FormLabel>
+                          <FormLabel className="text-white/90 font-medium">
+                            Password
+                          </FormLabel>
                           <FormControl>
                             <div className="relative group">
                               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
@@ -187,7 +202,11 @@ export const SignInView = () => {
                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                                 disabled={isLoading}
                               >
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
                               </button>
                             </div>
                           </FormControl>
@@ -246,7 +265,11 @@ export const SignInView = () => {
                     <Button
                       variant="outline"
                       type="button"
-                      onClick={() => handleSocialLogin('google')}
+                      onClick={() => {
+                        authClient.signIn.social({
+                          provider: "google",
+                        });
+                      }}
                       className="bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                       disabled={isLoading}
                     >
@@ -256,7 +279,11 @@ export const SignInView = () => {
                     <Button
                       variant="outline"
                       type="button"
-                      onClick={() => handleSocialLogin('github')}
+                      onClick={() => {
+                        authClient.signIn.social({
+                          provider: "github",
+                        });
+                      }}
                       className="bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                       disabled={isLoading}
                     >
@@ -267,7 +294,9 @@ export const SignInView = () => {
 
                   {/* Sign Up Link */}
                   <div className="text-center text-sm">
-                    <span className="text-gray-300">Don't have an account? </span>
+                    <span className="text-gray-300">
+                      Don't have an account?{" "}
+                    </span>
                     <Link
                       href="/sign-up"
                       className="text-white font-semibold hover:text-purple-300 transition-colors underline underline-offset-4"
@@ -305,7 +334,8 @@ export const SignInView = () => {
                     Apex-Agent
                   </h2>
                   <p className="text-gray-300 text-sm max-w-xs mx-auto leading-relaxed">
-                    Your intelligent agent for seamless automation and productivity
+                    Your intelligent agent for seamless automation and
+                    productivity
                   </p>
                 </div>
 
@@ -329,11 +359,17 @@ export const SignInView = () => {
         {/* Terms - Improved styling */}
         <div className="text-center text-xs text-gray-400 bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
           By clicking continue, you agree to our{" "}
-          <Link href="/terms" className="text-purple-300 hover:text-purple-200 transition-colors underline underline-offset-2">
+          <Link
+            href="/terms"
+            className="text-purple-300 hover:text-purple-200 transition-colors underline underline-offset-2"
+          >
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="text-purple-300 hover:text-purple-200 transition-colors underline underline-offset-2">
+          <Link
+            href="/privacy"
+            className="text-purple-300 hover:text-purple-200 transition-colors underline underline-offset-2"
+          >
             Privacy Policy
           </Link>
           .

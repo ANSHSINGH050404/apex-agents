@@ -300,7 +300,11 @@ export const SignUpView = () => {
                     <Button
                       variant="outline"
                       type="button"
-                      onClick={() => handleSocialLogin('google')}
+                      onClick={() => {
+                        authClient.signIn.social({
+                          provider: "google",
+                        });
+                      }}
                       className="bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                       disabled={isLoading}
                     >
@@ -310,7 +314,11 @@ export const SignUpView = () => {
                     <Button
                       variant="outline"
                       type="button"
-                      onClick={() => handleSocialLogin('github')}
+                      onClick={() => {
+                        authClient.signIn.social({
+                          provider:"github",
+                        })
+                      }}
                       className="bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                       disabled={isLoading}
                     >
