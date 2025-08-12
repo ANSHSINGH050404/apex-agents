@@ -24,7 +24,7 @@ export const DashboardNavbar = () => {
   return (
     <>
       <DashboardCommand open={commandOpen} setOpen={setCammandOpen} />
-      <nav className=" relative left-[260px] flex px-4 gap-x-2 items-center py-3 border-b bg-background">
+      <nav className="  flex px-4 gap-x-2 items-center py-3 border-b bg-background">
         <Button
           className="h-9 w-[240px] justify-start font-normal text-muted-foreground hover:text-muted-foreground"
           variant="outline"
