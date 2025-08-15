@@ -1,54 +1,96 @@
-import { db } from "@/db"
-import { agents } from "@/db/schema"
-import {createTRPCRouter, protectedProcedure} from "@/trpc/init"
+import { db } from "@/db";
+import { agents } from "@/db/schema";
+import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { agentsInsertSchema } from "../schemas";
-import {  string, z } from "zod";
-import { eq, getTableColumns, sql } from "drizzle-orm";
+import { string, z } from "zod";
+import { and, count, desc, eq, getTableColumns, ilike, sql } from "drizzle-orm";
+import { Search } from "lucide-react";
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+  MIN_PAGE_SIZE,
+} from "@/constants";
 
-
-
-
-export const agentsRouter=createTRPCRouter({
-
-    getOne:protectedProcedure.input(z.object({ id:string() })).query(async ({input}) =>{
-        const [existingAgent]=await db
+export const agentsRouter = createTRPCRouter({
+  getOne: protectedProcedure
+    .input(z.object({ id: string() }))
+    .query(async ({ input }) => {
+      const [existingAgent] = await db
         .select({
-            meetingCount:sql<number>`5`,
-            ...getTableColumns(agents),
+          meetingCount: sql<number>`5`,
+          ...getTableColumns(agents),
         })
         .from(agents)
-        .where(eq(agents.id, input.id))
+        .where(eq(agents.id, input.id));
 
-        return existingAgent;
+      return existingAgent;
     }),
 
+  // Change getMany to use 'protectedProcedure
+  getMany: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().default(DEFAULT_PAGE),
+        pageSize: z
+          .number()
+          .min(MIN_PAGE_SIZE)
+          .max(MAX_PAGE_SIZE)
+          .default(DEFAULT_PAGE_SIZE),
+        search: string().nullish(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { search, page, pageSize } = input;
+      const data = await db
+        .select({
+          meetingCount: sql<number>`6`,
+          ...getTableColumns(agents),
+        })
+        .from(agents)
+        .where(
+          and(
+            eq(agents.userId, ctx.auth.user.id),
+            search ? ilike(agents.name, `%${search}`) : undefined
+          )
+        )
+        .orderBy(desc(agents.createdAt),desc(agents.id))
+        .limit(pageSize)
+        .offset((page-1) *pageSize)
 
-// Change getMany to use 'protectedProcedure
-    getMany:protectedProcedure.query(async () =>{
-        const data=await db
-        .select()
-        .from(agents);
+        const [ total]=await db
+        .select({count:count()})
+        .from(agents)
+        .where(
+            and(
+                    eq(agents.userId, ctx.auth.user.id),
+            search ? ilike(agents.name, `%${search}`) : undefined
 
-        // await new Promise((resolve)=> setTimeout(resolve , 5000))
-        // throw new TRPCError ({code :"BAD_REQUEST"})
+            )
+        )
 
-        return data;
+        const totalPages =Math.ceil(total.count/pageSize)
+        
+
+      return {
+        items:data,
+        total:total.count,
+        totalPages,
+      }
     }),
 
-    create:protectedProcedure
+  create: protectedProcedure
     .input(agentsInsertSchema)
-    .mutation(async({input,ctx}) =>{
-     
-        const [createdAgents]= await db
+    .mutation(async ({ input, ctx }) => {
+      const [createdAgents] = await db
         .insert(agents)
         .values({
-            ...input,
-            userId:ctx.auth.user.id,
+          ...input,
+          userId: ctx.auth.user.id,
         })
-        .returning()
+        .returning();
 
-        return createdAgents;
-
+      return createdAgents;
     }),
 });
