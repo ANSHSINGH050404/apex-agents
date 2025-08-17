@@ -27,7 +27,8 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // Fixed: App Router import
+import { useRouter } from "next/navigation"; 
+import Image from "next/image";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -73,6 +74,8 @@ export const SignInView = () => {
     } catch (err) {
       setError("Invalid email or password. Please try again.");
       setIsLoading(false);
+      console.log(err);
+      
     }
   };
 
@@ -95,6 +98,8 @@ export const SignInView = () => {
     } catch (err) {
       setError(`Failed to sign in with ${provider}. Please try again.`);
       setIsLoading(false);
+      console.log(err);
+      
     }
   };
 
@@ -322,7 +327,7 @@ export const SignInView = () => {
               <div className="relative z-10 text-center space-y-6">
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                  <img
+                  <Image
                     src="/logp.jpg"
                     alt="Apex-Agent Logo"
                     className="relative h-24 w-24 object-contain rounded-full border-2 border-white/30 backdrop-blur-sm"

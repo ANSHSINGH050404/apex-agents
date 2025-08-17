@@ -1,7 +1,9 @@
+
+'use client'
 import { useTRPC } from "@/trpc/client";
 import { AgentGetOne } from "../../types";
-import { useRouter } from "next/router";
-import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
+
+import {  useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { agentsInsertSchema } from "../../schemas";
@@ -40,10 +42,26 @@ export const AgentForm = ({
         await queryClient.invalidateQueries(
           trpc.agents.getMany.queryOptions({}),
         );
+       
+        onSuccess?.(); // Call success callback
+        toast.success("Agent created successfully!");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
+  
+    const UpdateAgent = useMutation(
+    trpc.agents.update.mutationOptions({
+      onSuccess: async() => {
+        await queryClient.invalidateQueries(
+          trpc.agents.getMany.queryOptions({}),
+        );
         if(initialValues?.id){
           await queryClient.invalidateQueries(
             trpc.agents.getOne.queryOptions({id: initialValues.id})
-          ); // Fixed: Added missing closing parenthesis
+          ); 
         }
         onSuccess?.(); // Call success callback
         toast.success("Agent created successfully!");
@@ -53,7 +71,6 @@ export const AgentForm = ({
       },
     })
   );
-
   const form = useForm<z.infer<typeof agentsInsertSchema>>({
     resolver: zodResolver(agentsInsertSchema),
     defaultValues: {
@@ -63,12 +80,11 @@ export const AgentForm = ({
   });
 
   const isEdit = !!initialValues?.id;
-  const isPending = createAgent.isPending;
+  const isPending = createAgent.isPending ||UpdateAgent.isPending;
 
   const onSubmit = (values: z.infer<typeof agentsInsertSchema>) => {
     if (isEdit) {
-      console.log("TODO: updateAgent");
-      // TODO: Implement update mutation
+     UpdateAgent.mutate({...values,id:initialValues.id});
     } else {
       createAgent.mutate(values);
     }
